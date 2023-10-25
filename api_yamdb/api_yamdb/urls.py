@@ -18,6 +18,7 @@ from django.urls import path, include
 from django.views.generic import TemplateView
 from users.views import UserViewSet
 from rest_framework import routers
+from users.views import CreateTokenView, GetTokenView
 
 
 router = routers.DefaultRouter()
@@ -30,5 +31,7 @@ urlpatterns = [
         TemplateView.as_view(template_name='redoc.html'),
         name='redoc'
     ),
-    path('v1/', include(router.urls)),
+    path('api/v1/', include(router.urls)),
+    path('api/v1/auth/signup/', CreateTokenView.as_view()),
+    path('api/v1/auth/token/', GetTokenView.as_view()),
 ]
