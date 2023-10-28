@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-#User = get_user_model()
 
 CHOICES = (
     ('user', 'Пользователь'),
@@ -18,7 +17,6 @@ class UserModel(AbstractUser):
     confirmation_code = models.CharField(max_length=128, blank=True)
 
     def save(self, *args, **kwargs):
-        print(self.is_superuser)
         if self.is_superuser:
             self.role = 'admin'
         super().save()

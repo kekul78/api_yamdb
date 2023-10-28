@@ -1,8 +1,10 @@
 from rest_framework import serializers
-from users.models import UserModel
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
 from django.core.validators import RegexValidator
+
+from users.models import UserModel
+
 import random
 
 
