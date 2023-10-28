@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ЯП - Спринт 12 - Проект «Проект YaMDb»
 
 ## Описание
@@ -66,3 +67,7 @@ python3 manage.py runserver
 * [Канцулин Данил](https://github.com/kekul78)
 * [Малич Денис](https://github.com/Denmais)
 * [Даниил Кузнецов](https://github.com/Daniel-Ku3sovv)
+=======
+# api_yamdb
+Совместный проект бибы, бобы и абобы
+>>>>>>> 7dcf58a039a62e8ef197e873db63e86c01b298f5
