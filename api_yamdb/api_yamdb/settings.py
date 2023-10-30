@@ -103,7 +103,7 @@ AUTH_PASSWORD_VALIDATORS = [
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 # Указываем директорию, в которую будут сохраняться файлы писем:
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
-
+DEFAULT_FROM_EMAIL = 'host@mail.com'
 # Internationalization
 
 LANGUAGE_CODE = 'en-us'
