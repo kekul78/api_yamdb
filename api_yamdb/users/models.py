@@ -18,8 +18,6 @@ class UserModel(AbstractUser):
     role = models.CharField(max_length=MAX_LENGTH_ROLE, choices=CHOICES,
                             default=USER, blank=True)
     email = models.EmailField(unique=True)
- #   confirmation_code = models.CharField(max_length=MAX_LENGTH_ELSE,
- #                                        blank=True)
     username = models.CharField(max_length=MAX_LENGTH_ELSE, unique=True,
                                 validators=[validate_forbidden_username])
 
