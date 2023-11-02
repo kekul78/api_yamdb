@@ -1,4 +1,6 @@
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, viewsets, filters
+
+from .permissions import IsAdminOrReadOnly
 
 
 class ListCreateDestroyViewSet(
@@ -7,7 +9,8 @@ class ListCreateDestroyViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
-    """
-    Класс со всеми необходимыми миксинами.
-    """
-    pass
+    """Класс со всеми необходимыми миксинами."""
+    permission_classes = (IsAdminOrReadOnly,)
+    lookup_field = "slug"
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ("name",)

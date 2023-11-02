@@ -1,7 +1,7 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, viewsets, permissions, status
+from rest_framework import viewsets, permissions, status
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
@@ -21,19 +21,11 @@ from .serializers import (CategorySerializer,
 class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ("name",)
-    lookup_field = "slug"
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ("name",)
-    lookup_field = "slug"
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -91,7 +83,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
 
     def get_title_obj(self):
-        print(self.kwargs)
         return get_object_or_404(Title, id=self.kwargs.get('title_id'))
 
     def get_queryset(self):

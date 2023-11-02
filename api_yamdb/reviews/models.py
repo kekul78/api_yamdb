@@ -5,11 +5,11 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from .validators import validate_year
 from users.models import UserModel
 
+LENGHT_NAME = 256
+
 
 class Category(models.Model):
-    """
-    Класс категории.
-    """
+    """Класс категории."""
     name = models.CharField(
         verbose_name='Название',
         max_length=256
@@ -17,7 +17,8 @@ class Category(models.Model):
     slug = models.SlugField(
         verbose_name='Идентификатор',
         max_length=50,
-        unique=True
+        unique=True,
+        db_index=True
     )
 
     def __str__(self):
@@ -26,16 +27,14 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-        ordering = ['name']
+        ordering = ('name',)
 
 
 class Genre(models.Model):
-    """
-    Класс жанра.
-    """
+    """Класс жанра."""
     name = models.CharField(
         verbose_name='Название',
-        max_length=256
+        max_length=LENGHT_NAME
     )
     slug = models.SlugField(
         verbose_name='Идентификатор',
@@ -53,16 +52,15 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    """
-    Класс произведения.
-    """
+    """Класс произведения."""
     name = models.CharField(
         verbose_name='Название',
-        max_length=200
+        max_length=LENGHT_NAME,
+        db_index=True
     )
     year = models.IntegerField(
         verbose_name='Дата выхода',
-        validators=[validate_year]
+        validators=(validate_year,)
     )
     description = models.TextField(
         verbose_name='Описание',
@@ -87,19 +85,17 @@ class Title(models.Model):
         default=None
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
         ordering = ['name']
 
+    def __str__(self):
+        return self.name
+
 
 class GenreTitle(models.Model):
-    """
-    Класс жанра произведения.
-    """
+    """Класс жанра произведения."""
     title = models.ForeignKey(
         Title,
         verbose_name='Произведение',
@@ -118,6 +114,7 @@ class GenreTitle(models.Model):
 
 
 class Review(models.Model):
+    """Класс отзывов к произведениям."""
     author = models.ForeignKey(
         UserModel,
         on_delete=models.CASCADE,
@@ -136,7 +133,8 @@ class Review(models.Model):
 
     pub_date = models.DateTimeField(
         'Дата публикации отзыва',
-        auto_now_add=True
+        auto_now_add=True,
+        db_index=True
     )
 
     class Meta:
@@ -153,6 +151,7 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
+    """Класс коментариев к отзывам."""
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
@@ -166,7 +165,8 @@ class Comment(models.Model):
     )
     pub_date = models.DateTimeField(
         'Дата публикации комментария',
-        auto_now_add=True
+        auto_now_add=True,
+        db_index=True
     )
 
     class Meta:

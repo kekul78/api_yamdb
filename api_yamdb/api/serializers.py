@@ -1,6 +1,8 @@
 from rest_framework import serializers
+from django.shortcuts import get_object_or_404
 
 from reviews.models import Category, Genre, Title, Comment, Review
+from reviews.validators import validate_year
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -27,12 +29,14 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ('title', 'author')
 
     def validate(self, data):
-        if Review.objects.filter(
-            title_id=self.context['view'].kwargs.get('title_id'),
+        if self.context['request'].method == 'POST' and Review.objects.filter(
+            title_id=get_object_or_404(Title,
+                                       pk=self.context['view']
+                                       .kwargs['title_id']),
             author=self.context['request'].user
-        ) and self.context['request'].method == 'POST':
+        ):
             raise serializers.ValidationError(
-                'Низя так!!!'
+                'Можно написать только одну рецензию на произведение.'
             )
         return data
 
@@ -66,6 +70,9 @@ class TitleSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         slug_field='slug', queryset=Category.objects.all()
     )
+    year = serializers.IntegerField(
+        validators=[validate_year]
+    )
 
     class Meta:
         model = Title
@@ -84,3 +91,4 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
         )
+        read_only_fields = fields
