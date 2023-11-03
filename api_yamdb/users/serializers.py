@@ -2,9 +2,7 @@ from rest_framework import serializers
 
 from users.models import UserModel
 from users.validators import validate_forbidden_username
-
-
-MAX_LENGTH = 150
+import users.constants as const
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -18,18 +16,22 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserTokenSerializer(serializers.Serializer):
     """Сериализатор запроса на получение кода подтверждения."""
-    email = serializers.EmailField(max_length=MAX_LENGTH, required=True)
-    username = serializers.CharField(max_length=MAX_LENGTH, required=True,
+    email = serializers.EmailField(max_length=const.MAX_LENGTH, required=True)
+    username = serializers.CharField(max_length=const.MAX_LENGTH,
+                                     required=True,
                                      validators=[validate_forbidden_username])
 
     def validate(self, data):
         """Проверка при введении правильного ника или почты."""
-        if (bool(UserModel.objects.filter(username=data['username']))
-                and not bool(UserModel.objects.filter(email=data['email']))):
+        # Валидация совокупности двух полей (1 и 0; 0 и 1)
+        # Если нужно разбить на поля, то объясните зачем это нужно
+        if (UserModel.objects.filter(username=data['username']).exists()
+                and not UserModel.objects
+                .filter(email=data['email']).exists()):
             raise serializers.ValidationError(
                 'Ошибка, проверьте правильность почты!')
-        elif (not bool(UserModel.objects.filter(username=data['username']))
-              and bool(UserModel.objects.filter(email=data['email']))):
+        elif (not UserModel.objects.filter(username=data['username']).exists()
+              and UserModel.objects.filter(email=data['email']).exists()):
             raise serializers.ValidationError(
                 'Ошибка, проверьте правильность логина!')
         return data
@@ -37,5 +39,5 @@ class UserTokenSerializer(serializers.Serializer):
 
 class UserTokenCreateSerializer(serializers.Serializer):
     """Сериализатор запроса на получение токена."""
-    username = serializers.CharField(max_length=MAX_LENGTH)
-    confirmation_code = serializers.CharField(max_length=MAX_LENGTH)
+    username = serializers.CharField(max_length=const.MAX_LENGTH)
+    confirmation_code = serializers.CharField(max_length=const.MAX_LENGTH)

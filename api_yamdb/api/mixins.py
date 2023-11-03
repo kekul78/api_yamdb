@@ -11,6 +11,6 @@ class ListCreateDestroyViewSet(
 ):
     """Класс со всеми необходимыми миксинами."""
     permission_classes = (IsAdminOrReadOnly,)
-    lookup_field = "slug"
+    lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
-    search_fields = ("name",)
+    search_fields = ('name',)

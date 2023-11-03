@@ -6,28 +6,30 @@ from .validators import validate_year
 from users.models import UserModel
 
 LENGHT_NAME = 256
+LENGHT_SLUG = 50
+TURN_CAT = 15
 
 
 class Category(models.Model):
     """Класс категории."""
     name = models.CharField(
         verbose_name='Название',
-        max_length=256
+        max_length=LENGHT_NAME
     )
     slug = models.SlugField(
         verbose_name='Идентификатор',
-        max_length=50,
+        max_length=LENGHT_SLUG,
         unique=True,
         db_index=True
     )
-
-    def __str__(self):
-        return self.name
 
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
         ordering = ('name',)
+
+    def __str__(self):
+        return self.name
 
 
 class Genre(models.Model):
@@ -38,17 +40,17 @@ class Genre(models.Model):
     )
     slug = models.SlugField(
         verbose_name='Идентификатор',
-        max_length=50,
+        max_length=LENGHT_SLUG,
         unique=True
     )
-
-    def __str__(self):
-        return self.name
 
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
-        ordering = ['name']
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
 
 
 class Title(models.Model):
@@ -88,7 +90,7 @@ class Title(models.Model):
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
-        ordering = ['name']
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -105,74 +107,70 @@ class GenreTitle(models.Model):
         verbose_name='Жанр',
         on_delete=models.CASCADE)
 
-    def __str__(self):
-        return f'{self.title}, жанр - {self.genre}'
-
     class Meta:
         verbose_name = 'Произведение и жанр'
         verbose_name_plural = 'Произведения и жанры'
 
+    def __str__(self):
+        return f'{self.title}, жанр - {self.genre}'
 
-class Review(models.Model):
-    """Класс отзывов к произведениям."""
-    author = models.ForeignKey(
-        UserModel,
-        on_delete=models.CASCADE,
-        related_name='reviews'
-    )
-    title = models.ForeignKey(
-        Title,
-        on_delete=models.CASCADE,
-        related_name='reviews'
-    )
+
+class AbstractModel(models.Model):
+
+    class Meta:
+        abstract = True
+
     text = models.TextField()
-    score = models.IntegerField(
-        default=0,
-        validators=[MinValueValidator(1), MaxValueValidator(10)]
-    )
-
     pub_date = models.DateTimeField(
         'Дата публикации отзыва',
         auto_now_add=True,
         db_index=True
     )
+    author = models.ForeignKey(
+        UserModel,
+        on_delete=models.CASCADE
+    )
+
+
+class Review(AbstractModel):
+    """Класс отзывов к произведениям."""
+
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE
+    )
+    score = models.PositiveSmallIntegerField(
+        default=0,
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        error_messages={'validators': 'Оценки могут быть от 1 до 10'}
+    )
 
     class Meta:
-        ordering = ['pub_date']
+        ordering = ('pub_date',)
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         constraints = [
             models.UniqueConstraint(fields=['author', 'title'],
                                     name='unique_review')
         ]
+        default_related_name = 'reviews'
 
     def __str__(self):
-        return truncatewords(self.text, 15)
+        return truncatewords(self.text, TURN_CAT)
 
 
-class Comment(models.Model):
+class Comment(AbstractModel):
     """Класс коментариев к отзывам."""
     review = models.ForeignKey(
         Review,
-        on_delete=models.CASCADE,
-        related_name='comments'
-    )
-    text = models.TextField()
-    author = models.ForeignKey(
-        UserModel,
-        on_delete=models.CASCADE,
-        related_name='comments'
-    )
-    pub_date = models.DateTimeField(
-        'Дата публикации комментария',
-        auto_now_add=True,
-        db_index=True
+        on_delete=models.CASCADE
     )
 
     class Meta:
-        ordering = ['pub_date']
+        ordering = ('pub_date',)
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
+        default_related_name = 'comments'
 
     def __str__(self):
-        return self.text
+        return truncatewords(self.text, TURN_CAT)

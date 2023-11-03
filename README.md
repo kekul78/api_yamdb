@@ -54,6 +54,13 @@ python3 manage.py migrate
 python3 manage.py runserver
 ```
 
+### Как импортировать данные из csv файлов:
+
+Заполнение базы тестовыми данными
+
+```
+python manage.py load_data
+```
 
 ## Стек технологий
 

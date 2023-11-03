@@ -1,9 +1,8 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.response import Response
 
 from reviews.models import Category, Genre, Title, Review
 from .filters import TitlesFilter
@@ -30,22 +29,18 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().annotate(
-        Avg("reviews__score")
-    ).order_by("name")
+        Avg('reviews__score')
+    ).order_by('name')
     serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitlesFilter
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_serializer_class(self):
-        if self.action in ("retrieve", "list"):
+        if self.action in ('retrieve', 'list'):
             return ReadOnlyTitleSerializer
         return TitleSerializer
-
-    def update(self, request, *args, **kwargs):
-        if self.action == 'update':
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        return super().update(request, *args, **kwargs)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -53,6 +48,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsAuthorModeratorAadminOrReadOnly)
     pagination_class = LimitOffsetPagination
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
         review = get_object_or_404(
@@ -70,17 +66,13 @@ class CommentViewSet(viewsets.ModelViewSet):
             author=self.request.user, review=review
         )
 
-    def update(self, request, *args, **kwargs):
-        if self.action == 'update':
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        return super().update(request, *args, **kwargs)
-
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsAuthorModeratorAadminOrReadOnly)
     pagination_class = LimitOffsetPagination
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_title_obj(self):
         return get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -93,8 +85,3 @@ class ReviewViewSet(viewsets.ModelViewSet):
             author=self.request.user,
             title=self.get_title_obj()
         )
-
-    def update(self, request, *args, **kwargs):
-        if self.action == 'update':
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        return super().update(request, *args, **kwargs)
