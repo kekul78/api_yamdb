@@ -1,30 +1,21 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from users.validators import validate_forbidden_username
-
-USER = 'user'
-
-CHOICES = (
-    (USER, 'Пользователь'),
-    ('moderator', 'Модератор'),
-    ('admin', 'Админ')
-)
-MAX_LENGTH_ROLE = max(len(ROLE[0]) for ROLE in CHOICES)
-MAX_LENGTH_ELSE = 150
+import users.constants as const
 
 
 class UserModel(AbstractUser):
     bio = models.TextField('Биография', blank=True)
-    role = models.CharField(max_length=MAX_LENGTH_ROLE, choices=CHOICES,
-                            default=USER, blank=True)
+    role = models.CharField(max_length=const.MAX_LENGTH_ROLE, choices=const.CHOICES,
+                            default=const.USER, blank=True)
     email = models.EmailField(unique=True)
-    username = models.CharField(max_length=MAX_LENGTH_ELSE, unique=True,
+    username = models.CharField(max_length=const.MAX_LENGTH_ELSE, unique=True,
                                 validators=[validate_forbidden_username])
 
     class Meta:
         verbose_name = 'Участники'
         verbose_name_plural = 'Участники'
-        ordering = ['username']
+        ordering = ('username',)
 
     @property
     def is_admin(self):
