@@ -1,6 +1,6 @@
 # constants.py
 
-"""This module defines project-level constants."""
+"""Модуль для констант."""
 
 USER = 'user'
 MODERATOR = 'moderator'
