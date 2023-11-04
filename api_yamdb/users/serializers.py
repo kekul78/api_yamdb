@@ -24,7 +24,6 @@ class UserTokenSerializer(serializers.Serializer):
     def validate(self, data):
         """Проверка при введении правильного ника или почты."""
         # Валидация совокупности двух полей (1 и 0; 0 и 1)
-        # Если нужно разбить на поля, то объясните зачем это нужно
         if (UserModel.objects.filter(username=data['username']).exists()
                 and not UserModel.objects
                 .filter(email=data['email']).exists()):
