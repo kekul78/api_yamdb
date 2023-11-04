@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
-from rest_framework.routers import DefaultRouter
 
-from users.views import CreateTokenView, GetTokenView, UserViewSet
+from users.views import CreateTokenView, GetTokenView
 
-router = DefaultRouter()
-router.register(r'users', UserViewSet, basename='users')
+auth_patern = [
+    path('signup/', CreateTokenView.as_view()),
+    path('token/', GetTokenView.as_view()),
+]
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -15,8 +16,6 @@ urlpatterns = [
         TemplateView.as_view(template_name='redoc.html'),
         name='redoc'
     ),
-    path('api/v1/auth/signup/', CreateTokenView.as_view()),
-    path('api/v1/auth/token/', GetTokenView.as_view()),
-    path('api/v1/', include(router.urls)),
+    path('api/v1/auth/', include(auth_patern)),
     path('api/v1/', include('api.urls')),
 ]
